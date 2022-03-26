@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gpay_ui_rep/widgets/user_details.dart';
 
-import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:snapping_sheet/snapping_sheet.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,7 +10,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,64 +20,109 @@ class MyApp extends StatelessWidget {
             secondary: Colors.blue[700]!,
           )),
       home: HomePage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class HomePage extends HookWidget {
-  const HomePage({Key? key}) : super(key: key);
+class HomePage extends StatelessWidget {
+  HomePage({Key? key}) : super(key: key);
+
+  Widget _buildBox() => const SizedBox(
+        height: 10,
+      );
+
+  final _snapController = SnappingSheetController();
 
   @override
   Widget build(BuildContext context) {
-    AnimationController _bottomSheetController = useAnimationController();
     return Scaffold(
-      body: Container(),
-      bottomSheet: BottomSheet(
-        elevation: 15,
-        onClosing: () {},
-        builder: (context) => SizedBox(
-          child: Stack(children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(15),
-                  topRight: Radius.circular(15),
+      backgroundColor: Colors.blue[700],
+      body: SnappingSheet(
+        snappingPositions: const [
+          SnappingPosition.factor(positionFactor: 1),
+          SnappingPosition.factor(positionFactor: .7),
+          SnappingPosition.factor(positionFactor: .09)
+        ],
+        initialSnappingPosition:
+            const SnappingPosition.factor(positionFactor: .7),
+        controller: _snapController,
+        child: Padding(
+          padding: MediaQuery.of(context).viewPadding,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Row(
+              children: [
+                const SizedBox(
+                  width: 10,
                 ),
-              ),
-              width: MediaQuery.of(context).size.width,
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black26,
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    height: 2,
-                    width: 25,
-                  ),
-                ],
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: EdgeInsets.only(bottom: 24),
-                child: FloatingActionButton.extended(
-                  onPressed: (() {}),
-                  label: Text("New Payment"),
-                  icon: Icon(Icons.add_rounded),
-                  foregroundColor: Colors.white,
+                ActionChip(
+                  backgroundColor: Colors.white,
+                  elevation: 5,
+                  onPressed: () {},
+                  label: const Text(" Scan any QR"),
+                  avatar: const Icon(Icons.center_focus_weak_rounded),
                 ),
-              ),
+              ],
             ),
-          ]),
-          height: MediaQuery.of(context).size.height * .75,
+          ),
         ),
-        enableDrag: true,
-        animationController: _bottomSheetController,
+        sheetBelow: SnappingSheetContent(
+          draggable: true,
+          child: ListView.builder(
+            itemCount: 1,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(25),
+                    topRight: Radius.circular(25),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    _buildBox(),
+                    Container(
+                      height: 3,
+                      width: 25,
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                    ),
+                    _buildBox(),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "People",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    _buildBox(),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                        crossAxisSpacing: 10,
+                      ),
+                      itemCount: 8,
+                      itemBuilder: (context, index) {
+                        return const UserDetails();
+                      },
+                    )
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
