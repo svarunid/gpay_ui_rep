@@ -32,15 +32,15 @@ class BusinessChips extends StatelessWidget {
     return ActionChip(
       label: Text(
         label,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 16,
         ),
       ),
       onPressed: () {},
-      labelPadding: EdgeInsets.all(6),
+      labelPadding: const EdgeInsets.all(6),
       avatar: Icon(icon),
       backgroundColor: Colors.transparent,
-      side: BorderSide(color: Colors.black12, width: 1),
+      side: const BorderSide(color: Colors.black12, width: 1),
       pressElevation: 0,
     );
   }

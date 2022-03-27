@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -8,7 +9,6 @@ import 'widgets/business_chips.dart';
 import 'widgets/header.dart';
 import 'widgets/user_details.dart';
 import 'utils/random_gen.dart';
-import 'widgets/custom_scroll_behaviour.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +43,15 @@ class HomePage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     ScrollController scrollController = useScrollController();
+    AnimationController animationController =
+        useAnimationController(duration: 100.milliseconds);
+    Animation<Offset> animation = Tween<Offset>(
+      begin: const Offset(0, 0),
+      end: const Offset(0, 1.5),
+    ).animate(
+      CurvedAnimation(parent: animationController, curve: Curves.linear),
+    );
+
     return Scaffold(
       backgroundColor: Colors.blue[700],
       body: SnappingSheet(
@@ -60,6 +69,15 @@ class HomePage extends HookWidget {
             snappingDuration: 100.milliseconds,
           )
         ],
+        onSnapCompleted: (sheetPosition, snapPosition) {
+          if (sheetPosition.relativeToSheetHeight == 0.09) {
+            animationController.forward();
+          }
+          if (sheetPosition.relativeToSheetHeight == 0.7 &&
+              animationController.isCompleted) {
+            animationController.reverse();
+          }
+        },
         initialSnappingPosition:
             const SnappingPosition.factor(positionFactor: .7),
         controller: _snapController,
@@ -73,53 +91,90 @@ class HomePage extends HookWidget {
         sheetBelow: SnappingSheetContent(
           childScrollController: scrollController,
           draggable: true,
-          child: ListView.builder(
-            controller: scrollController,
-            itemCount: 1,
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              return ConstrainedBox(
-                constraints: BoxConstraints(minHeight: context.height()),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      10.height,
-                      _handle(),
-                      10.height,
-                      const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Header(title: "People"),
-                      ),
-                      10.height,
-                      const UserDetails(),
-                      10.height,
-                      businessHeader(),
-                      8.height,
-                      BusinessChips(),
-                      10.height,
-                      const UserDetails(),
-                      10.height,
-                      const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Header(title: "Promotions"),
-                      ),
-                      10.height,
-                    ],
+          child: Stack(
+            children: [
+              NotificationListener<UserScrollNotification>(
+                onNotification: ((notification) {
+                  if (notification.direction == ScrollDirection.forward &&
+                      animationController.isCompleted) {
+                    animationController.reverse();
+                  }
+                  return false;
+                }),
+                child: NotificationListener<OverscrollIndicatorNotification>(
+                  onNotification: (notification) {
+                    if (notification.leading) {
+                      notification.disallowIndicator();
+                    }
+                    if (!notification.leading) {
+                      animationController.forward();
+                    }
+                    return false;
+                  },
+                  child: ListView.builder(
+                    controller: scrollController,
+                    itemCount: 1,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return ConstrainedBox(
+                        constraints:
+                            BoxConstraints(minHeight: context.height()),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              10.height,
+                              _handle(),
+                              10.height,
+                              const Align(
+                                alignment: Alignment.centerLeft,
+                                child: Header(title: "People"),
+                              ),
+                              10.height,
+                              const UserDetails(),
+                              10.height,
+                              businessHeader(),
+                              10.height,
+                              const BusinessChips(),
+                              15.height,
+                              const UserDetails(),
+                              10.height,
+                              const Align(
+                                alignment: Alignment.centerLeft,
+                                child: Header(title: "Promotions"),
+                              ),
+                              10.height,
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
-              );
-            },
+              ),
+            ],
           ),
         ),
       ),
+      floatingActionButton: SlideTransition(
+        position: animation,
+        child: FloatingActionButton.extended(
+          onPressed: () {},
+          label: const Text(
+            "New Payment",
+          ),
+          foregroundColor: Colors.white,
+          icon: const Icon(Icons.add_rounded),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
