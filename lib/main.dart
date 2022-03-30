@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:gpay_ui_rep/screens/lock_screen.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
 
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
           secondary: Colors.blue[700]!,
         ),
       ),
-      home: HomePage(),
+      home: LockScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -73,7 +74,7 @@ class HomePage extends HookWidget {
           if (sheetPosition.relativeToSheetHeight == 0.09) {
             animationController.forward();
           }
-          if (sheetPosition.relativeToSheetHeight == 0.7 &&
+          if (sheetPosition.relativeToSheetHeight >= 0.7 &&
               animationController.isCompleted) {
             animationController.reverse();
           }
@@ -166,6 +167,7 @@ class HomePage extends HookWidget {
       floatingActionButton: SlideTransition(
         position: animation,
         child: FloatingActionButton.extended(
+          backgroundColor: Colors.blueAccent[400],
           onPressed: () {},
           label: const Text(
             "New Payment",
@@ -221,13 +223,13 @@ class HomePage extends HookWidget {
         ActionChip(
           backgroundColor: Colors.blue[50],
           onPressed: () {},
-          label: Text(
+          label: const Text(
             "Explore",
-            style: TextStyle(color: Colors.blue[700], fontSize: 16),
+            style: TextStyle(color: Colors.blue, fontSize: 16),
           ),
-          avatar: Icon(
+          avatar: const Icon(
             Icons.shopping_bag_outlined,
-            color: Colors.blue[700],
+            color: Colors.blue,
             size: 20,
           ),
           padding: const EdgeInsets.all(8),

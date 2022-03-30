@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.gpay_ui_rep">
+    <uses-permission android:name="android.permission.INTERNET" />
    <application
         android:label="gpay_ui_rep"
         android:name="${applicationName}"
