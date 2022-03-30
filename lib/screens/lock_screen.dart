@@ -3,11 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:nb_utils/nb_utils.dart';
 
-class LockScreen extends HookWidget {
-  LockScreen({Key? key}) : super(key: key);
-  final IconData icon_empty = Icons.circle_outlined;
+enum LockState { login, setPin, changePin }
 
-  final IconData icon_filled = Icons.circle_rounded;
+class LockScreen extends HookWidget {
+  final String title;
+  final LockState state;
+  final String passcode;
+
+  LockScreen({
+    Key? key,
+    this.title = "Enter Your PIN",
+    this.state = LockState.login,
+    this.passcode = "",
+  }) : super(key: key);
+  final IconData iconEmpty = Icons.circle_outlined;
+
+  final IconData iconFilled = Icons.circle_rounded;
 
   @override
   Widget build(BuildContext context) {
@@ -17,21 +28,34 @@ class LockScreen extends HookWidget {
     int animationValue = useAnimation(IntTween(begin: 1, end: 4).animate(
         CurvedAnimation(parent: animationController, curve: Curves.linear)));
 
+    void logIn(number) {
+      if (pin.value.length < 4) {
+        pin.value += number;
+      } else if (pin.value.length == 4) {
+        animationController.forward();
+      }
+    }
+
     Widget keyNum(number) {
       return InkWell(
         borderRadius: BorderRadius.circular(50),
         onTap: () {
-          if (pin.value.length < 4) {
-            pin.value += number;
-          } else if (pin.value.length == 4) {
-            animationController.forward();
+          if (state == LockState.login) {
+            if (passcode.isNotEmpty) {
+              if (passcode == pin) {}
+            } else {
+              logIn(number);
+            }
+          } else if (state == LockState.changePin) {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (ctx) => LockScreen(passcode: pin.value)));
           }
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 16),
           child: Text(
             number,
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 22,
             ),
@@ -48,14 +72,14 @@ class LockScreen extends HookWidget {
           mainAxisSize: MainAxisSize.max,
           children: [
             Text(
-              "Enter Your PIN",
-              style: TextStyle(
+              title,
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w400,
               ),
             ),
             10.height,
-            Text("xyz@gmail.com"),
+            const Text("xyz@gmail.com"),
             15.height,
             pin.value.length >= 4
                 ? Row(
@@ -85,16 +109,16 @@ class LockScreen extends HookWidget {
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(pin.value.length >= 1 ? icon_filled : icon_empty),
+                      Icon(pin.value.isNotEmpty ? iconFilled : iconEmpty),
                       6.width,
-                      Icon(pin.value.length >= 2 ? icon_filled : icon_empty),
+                      Icon(pin.value.length >= 2 ? iconFilled : iconEmpty),
                       6.width,
-                      Icon(pin.value.length >= 3 ? icon_filled : icon_empty),
+                      Icon(pin.value.length >= 3 ? iconFilled : iconEmpty),
                       6.width,
-                      Icon(pin.value.length >= 4 ? icon_filled : icon_empty),
+                      Icon(pin.value.length >= 4 ? iconFilled : iconEmpty),
                     ],
                   ),
-            Spacer(),
+            const Spacer(),
             SizedBox(
               height: 275,
               child: Column(
@@ -131,12 +155,12 @@ class LockScreen extends HookWidget {
                       keyNum("0"),
                       IconButton(
                         onPressed: () {
-                          if (pin.value.length > 0 && pin.value.length < 4) {
+                          if (pin.value.isNotEmpty && pin.value.length < 4) {
                             pin.value =
                                 pin.value.substring(0, pin.value.length - 1);
                           }
                         },
-                        icon: Icon(Icons.backspace_outlined),
+                        icon: const Icon(Icons.backspace_outlined),
                       )
                     ],
                   )

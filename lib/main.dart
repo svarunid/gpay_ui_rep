@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
           secondary: Colors.blue[700]!,
         ),
       ),
-      home: LockScreen(),
+      home: HomePage(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -74,7 +74,7 @@ class HomePage extends HookWidget {
           if (sheetPosition.relativeToSheetHeight == 0.09) {
             animationController.forward();
           }
-          if (sheetPosition.relativeToSheetHeight >= 0.7 &&
+          if (sheetPosition.relativeToSheetHeight <= 0.7 &&
               animationController.isCompleted) {
             animationController.reverse();
           }
@@ -147,11 +147,44 @@ class HomePage extends HookWidget {
                               15.height,
                               const UserDetails(),
                               10.height,
-                              const Align(
-                                alignment: Alignment.centerLeft,
-                                child: Header(title: "Promotions"),
+                              15.height,
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (ctx) => LockScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Text("Set PIN"),
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(100),
+                                  )),
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.blueAccent[400]),
+                                ),
                               ),
                               10.height,
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (ctx) => LockScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Text("Change PIN"),
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(100),
+                                  )),
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.blueAccent[400]),
+                                ),
+                              ),
                             ],
                           ),
                         ),
